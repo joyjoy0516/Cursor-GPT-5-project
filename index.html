@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>記帳工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 頂部導航 -->
+        <header class="top-header">
+            <div class="header-content">
+                <h1>💰 記帳工具</h1>
+                <nav class="tab-nav">
+                    <button class="tab-btn active" data-section="form-section">
+                        <span class="tab-icon">➕</span>
+                        <span class="tab-text">新增記錄</span>
+                    </button>
+                    <button class="tab-btn" data-section="budget-section">
+                        <span class="tab-icon">💰</span>
+                        <span class="tab-text">預算管理</span>
+                    </button>
+                    <button class="tab-btn" data-section="records-section">
+                        <span class="tab-icon">📋</span>
+                        <span class="tab-text">記錄列表</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            <div class="container">
+                <main>
+            <!-- 記帳表單 -->
+            <section id="form-section" class="form-section">
+                <h2>新增記錄</h2>
+                <form id="accountingForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="year">年份</label>
+                            <input type="number" id="year" name="year" required min="1900" max="2100" placeholder="2024">
+                        </div>
+                        <div class="form-group">
+                            <label for="month">月份</label>
+                            <input type="number" id="month" name="month" required min="1" max="12" placeholder="12">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="type">類型</label>
+                            <select id="type" name="type" required>
+                                <option value="">請選擇類型</option>
+                                <option value="expense">支出</option>
+                                <option value="income">收入</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">幣別</label>
+                            <select id="currency" name="currency" required>
+                                <option value="TWD">台幣 (TWD)</option>
+                                <option value="USD">美元 (USD)</option>
+                                <option value="EUR">歐元 (EUR)</option>
+                                <option value="JPY">日圓 (JPY)</option>
+                                <option value="CNY">人民幣 (CNY)</option>
+                                <option value="HKD">港幣 (HKD)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">金額</label>
+                            <input type="number" id="amount" name="amount" required min="0" step="0.01" placeholder="1000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">類別</label>
+                            <div class="category-container">
+                                <select id="category" name="category" required>
+                                    <option value="">請選擇類別</option>
+                                    <option value="飲食">飲食</option>
+                                    <option value="交通">交通</option>
+                                    <option value="購物">購物</option>
+                                    <option value="娛樂">娛樂</option>
+                                    <option value="醫療">醫療</option>
+                                    <option value="教育">教育</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                                <button type="button" id="addCategoryBtn" class="add-category-btn">+</button>
+                                <button type="button" id="deleteCategoryBtn" class="delete-category-btn">-</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">描述 (選填)</label>
+                            <input type="text" id="description" name="description" placeholder="記錄描述...">
+                        </div>
+                    </div>
+
+
+
+                    <button type="submit" class="submit-btn">新增記錄</button>
+                </form>
+            </section>
+
+            <!-- 新增類別對話框 -->
+            <div id="categoryModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>新增類別</h3>
+                    <div class="form-group">
+                        <label for="newCategory">類別名稱</label>
+                        <input type="text" id="newCategory" placeholder="輸入新類別名稱">
+                    </div>
+                    <button type="button" id="saveCategoryBtn" class="submit-btn">儲存類別</button>
+                </div>
+            </div>
+
+            <!-- 刪除類別對話框 -->
+            <div id="deleteCategoryModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>刪除類別</h3>
+                    <div class="form-group">
+                        <label for="deleteCategory">選擇要刪除的類別</label>
+                        <select id="deleteCategory">
+                            <option value="">請選擇類別</option>
+                        </select>
+                    </div>
+                    <div class="warning-message">
+                        <p>⚠️ 注意：刪除類別會將該類別的所有記錄改為「其他」類別</p>
+                    </div>
+                    <button type="button" id="confirmDeleteCategoryBtn" class="delete-btn">確認刪除</button>
+                </div>
+            </div>
+
+            <!-- 預算設定區域 -->
+            <section id="budget-section" class="budget-section">
+                <h2>💰 預算管理</h2>
+                
+                <!-- 預算設定表單 -->
+                <div class="budget-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="budgetYear">年份</label>
+                            <input type="number" id="budgetYear" min="1900" max="2100" placeholder="2024">
+                        </div>
+                        <div class="form-group">
+                            <label for="budgetMonth">月份</label>
+                            <input type="number" id="budgetMonth" min="1" max="12" placeholder="12">
+                        </div>
+                        <div class="form-group">
+                            <label for="budgetAmount">預算金額 (台幣)</label>
+                            <input type="number" id="budgetAmount" min="0" step="0.01" placeholder="50000">
+                        </div>
+                        <div class="form-group">
+                            <button type="button" id="setBudgetBtn" class="submit-btn">設定預算</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 預算列表 -->
+                <div class="budget-list">
+                    <h3>預算列表</h3>
+                    <table id="budgetTable">
+                        <thead>
+                            <tr>
+                                <th>期間</th>
+                                <th>預算金額</th>
+                                <th>實際支出</th>
+                                <th>剩餘預算</th>
+                                <th>使用率</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="budgetTableBody">
+                            <!-- 預算記錄將在這裡動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 記錄列表 -->
+            <section id="records-section" class="records-section">
+                <h2>記錄列表</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filterYear">年份篩選</label>
+                        <select id="filterYear">
+                            <option value="">全部年份</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterMonth">月份篩選</label>
+                        <select id="filterMonth">
+                            <option value="">全部月份</option>
+                            <option value="1">1月</option>
+                            <option value="2">2月</option>
+                            <option value="3">3月</option>
+                            <option value="4">4月</option>
+                            <option value="5">5月</option>
+                            <option value="6">6月</option>
+                            <option value="7">7月</option>
+                            <option value="8">8月</option>
+                            <option value="9">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterCategory">類別篩選</label>
+                        <select id="filterCategory">
+                            <option value="">全部類別</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="summary">
+                    <div class="summary-item">
+                        <span class="summary-label">總收入</span>
+                        <span class="summary-value income" id="totalIncome">NT$ 0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">總支出</span>
+                        <span class="summary-value expense" id="totalExpense">NT$ 0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">淨收入</span>
+                        <span class="summary-value net" id="netIncome">NT$ 0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">記錄筆數</span>
+                        <span class="summary-value" id="totalRecords">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <button id="exportBtn" class="export-btn">📊 匯出數據</button>
+                    </div>
+                </div>
+
+                <div class="records-container">
+                    <table id="recordsTable">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>類型</th>
+                                <th>金額</th>
+                                <th>類別</th>
+                                <th>描述</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody">
+                            <!-- 記錄將在這裡動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
